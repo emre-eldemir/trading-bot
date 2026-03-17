@@ -1,0 +1,134 @@
+# =============================================================================
+# Trading Bot Configuration
+# All thresholds and parameters are defined here.
+# Secrets (API keys, webhooks) go in .env — NOT here.
+# =============================================================================
+
+trading:
+  # Paper trading mode — set to false ONLY after thorough testing
+  simulation_mode: true
+  # Allow real order sending — NEVER set true without exchange credentials
+  live_trading: false
+  # Use leverage — strongly discouraged; keep false
+  use_leverage: false
+
+market:
+  # Exchange/venue to connect to (mock | binance | etc.)
+  exchange: mock
+  # Markets/symbols to scan
+  symbols:
+    - BTC/USDT
+    - ETH/USDT
+    - SOL/USDT
+  # Base polling interval in seconds
+  polling_interval: 5
+  # Adaptive polling bounds (seconds)
+  min_polling_interval: 1
+  max_polling_interval: 30
+  # Volatility threshold for adaptive polling (annualized %)
+  high_volatility_threshold: 0.80
+  low_volatility_threshold: 0.20
+
+fees:
+  maker_fee: 0.0002   # 0.02%
+  taker_fee: 0.0005   # 0.05%
+  # Prefer limit (maker) orders when possible
+  prefer_maker: true
+
+ev:
+  # Minimum edge required before placing a trade
+  min_edge: 0.005        # 0.5%
+  # Minimum Expected Value (after fees + slippage)
+  min_ev: 0.003          # 0.3%
+  # Signal decay half-life in seconds — EV halves every N seconds
+  signal_decay_half_life: 60
+  # Slippage buffer as fraction of spread (fallback if no L2 data)
+  slippage_buffer: 0.001
+  # Execution delay assumed (seconds) for EV adjustment
+  execution_delay: 0.5
+  # Minimum confidence level for Bayesian edge estimation
+  min_confidence: 0.6
+
+kelly:
+  # Fractional Kelly multiplier — 0.25 is conservative and recommended
+  fraction: 0.25
+  # Dynamic Kelly: reduce fraction when drawdown exceeds these thresholds
+  drawdown_reduction_thresholds:
+    - drawdown: 0.05   # 5% drawdown → fraction * 0.75
+      multiplier: 0.75
+    - drawdown: 0.10   # 10% drawdown → fraction * 0.50
+      multiplier: 0.50
+    - drawdown: 0.20   # 20% drawdown → fraction * 0.25
+      multiplier: 0.25
+  # Correlation threshold: reduce sizing when correlation > this value
+  correlation_threshold: 0.70
+  # Minimum and maximum position sizes as fraction of bankroll
+  min_position_fraction: 0.005   # 0.5%
+  max_position_fraction: 0.10    # 10%
+
+bankroll:
+  # Fraction of total capital available for active trading
+  active_capital_ratio: 0.50
+  # Minimum active capital threshold before halting new trades
+  min_active_capital: 100.0
+  # Starting bankroll (used in simulation/paper mode)
+  starting_bankroll: 10000.0
+
+risk:
+  # Daily maximum loss as fraction of bankroll
+  daily_max_loss: 0.02          # 2%
+  # Total drawdown limit — triggers kill switch
+  max_drawdown: 0.15            # 15%
+  # Maximum number of concurrent open positions
+  max_open_positions: 5
+  # Maximum single trade risk as fraction of bankroll
+  max_single_trade_risk: 0.02   # 2%
+  # Maximum correlated exposure (sum of correlated position sizes)
+  max_correlated_exposure: 0.20 # 20%
+  # Volatility regime thresholds
+  high_vol_risk_multiplier: 0.50  # Halve risk in high-vol regime
+  low_vol_risk_multiplier: 1.00   # Normal risk in low-vol regime
+
+execution:
+  # Order timeout in seconds — cancel if not filled
+  order_timeout: 30
+  # Number of retries for failed order submissions
+  max_retries: 3
+  # Retry delay in seconds
+  retry_delay: 1.0
+  # TWAP/VWAP slice count for large orders
+  twap_slices: 5
+  # TWAP interval in seconds between slices
+  twap_interval: 10
+  # Large order threshold (fraction of bankroll) — use TWAP above this
+  large_order_threshold: 0.05
+
+scoring:
+  # Weights for opportunity scorer
+  ev_weight: 0.40
+  liquidity_weight: 0.25
+  confidence_weight: 0.20
+  freshness_weight: 0.15
+  # Minimum score to consider an opportunity
+  min_score: 0.50
+
+database:
+  url: "sqlite:///./data/trading_bot.db"
+  echo: false
+
+logging:
+  level: INFO
+  file: logs/trading_bot.log
+  max_bytes: 10485760   # 10 MB
+  backup_count: 5
+  format: "%(asctime)s | %(name)s | %(levelname)s | %(message)s"
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  reload: false
+
+alerting:
+  # Set via .env: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, DISCORD_WEBHOOK_URL
+  enabled: false
+  min_alert_interval: 60   # Minimum seconds between same-type alerts

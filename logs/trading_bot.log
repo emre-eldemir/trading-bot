@@ -1,0 +1,8 @@
+2026-03-17T15:28:13 | __main__                  | INFO     | Starting backtest...
+2026-03-17T15:28:13 | app.backtest.backtester   | INFO     | Backtest complete: 0 trades | net_pnl=0.00 | win_rate=0.0% | max_dd=0.0% | sharpe=0.00
+2026-03-17T15:28:13 | app.backtest.reporter     | INFO     | Summary written: data/reports/backtest_20260317_152813_summary.json
+2026-03-17T15:28:14 | matplotlib.font_manager   | INFO     | Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Can not load face (unknown file format; error code 0x2)
+2026-03-17T15:28:15 | matplotlib.font_manager   | INFO     | generated new fontManager
+2026-03-17T15:28:16 | app.backtest.reporter     | INFO     | Equity chart saved: data/reports/backtest_20260317_152813_equity_curve.png
+2026-03-17T15:28:16 | app.backtest.reporter     | INFO     | Report generated: data/reports/backtest_20260317_152813
+2026-03-17T15:28:32 | app.db.database           | INFO     | Database initialised: sqlite:///./data/trading_bot.db

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Bot Dashboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; }
+
+        /* LIVE TRADING WARNING — VERY VISIBLE */
+        .live-warning {
+            background: #ff0000;
+            color: white;
+            text-align: center;
+            padding: 16px;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.8} }
+
+        .paper-mode {
+            background: #1a472a;
+            color: #4caf50;
+            text-align: center;
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        .navbar {
+            background: #1c1f26;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid #2a2d35;
+        }
+        .navbar h1 { font-size: 18px; color: #4a9eff; }
+        .navbar a { color: #aaa; text-decoration: none; font-size: 14px; padding: 4px 8px; border-radius: 4px; }
+        .navbar a:hover { background: #2a2d35; color: #fff; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .card {
+            background: #1c1f26;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #2a2d35;
+        }
+        .card h2 { font-size: 14px; color: #888; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .card .value { font-size: 28px; font-weight: bold; color: #fff; }
+        .card .sub { font-size: 12px; color: #666; margin-top: 4px; }
+
+        .positive { color: #4caf50; }
+        .negative { color: #f44336; }
+        .neutral { color: #fff; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { text-align: left; padding: 8px; color: #888; border-bottom: 1px solid #2a2d35; }
+        td { padding: 8px; border-bottom: 1px solid #1a1d23; }
+        tr:hover td { background: #22262f; }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .badge-buy { background: #1a3a1a; color: #4caf50; }
+        .badge-sell { background: #3a1a1a; color: #f44336; }
+        .badge-paper { background: #1a2a3a; color: #4a9eff; }
+
+        .refresh-btn {
+            background: #2a3a4a;
+            color: #4a9eff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .refresh-btn:hover { background: #3a4a5a; }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 8px 16px;
+            background: #16191f;
+            font-size: 12px;
+            color: #666;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .dot-green { background: #4caf50; }
+        .dot-red { background: #f44336; }
+
+        #kill-switch-btn {
+            background: #8b0000;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        #kill-switch-btn:hover { background: #cc0000; }
+    </style>
+</head>
+<body>
+
+{% if live_trading %}
+<div class="live-warning">
+    ⚠️ WARNING: LIVE TRADING MODE IS ACTIVE — REAL ORDERS ARE BEING SENT ⚠️
+</div>
+{% else %}
+<div class="paper-mode">
+    🟢 PAPER TRADING MODE — No real orders are being sent
+</div>
+{% endif %}
+
+<nav class="navbar">
+    <h1>📈 Trading Bot</h1>
+    <a href="/">Dashboard</a>
+    <a href="/api/positions">Positions</a>
+    <a href="/api/trades">Trades</a>
+    <a href="/api/signals">Signals</a>
+    <a href="/api/risk">Risk</a>
+    <a href="/api/status">Status</a>
+    <div style="flex:1"></div>
+    <button class="refresh-btn" onclick="loadAll()">⟳ Refresh</button>
+    {% if live_trading %}
+    <button id="kill-switch-btn" onclick="activateKillSwitch()">🛑 KILL SWITCH</button>
+    {% endif %}
+</nav>
+
+<div class="status-bar">
+    <span id="status-dot" class="dot dot-green"></span>
+    <span id="status-text">Connecting...</span>
+    <span>|</span>
+    <span id="regime-text">Regime: —</span>
+    <span>|</span>
+    <span id="last-update">Last update: —</span>
+</div>
+
+<div class="grid" id="metric-cards">
+    <div class="card">
+        <h2>Total Equity</h2>
+        <div class="value" id="equity">—</div>
+        <div class="sub" id="equity-sub">—</div>
+    </div>
+    <div class="card">
+        <h2>Daily P&L</h2>
+        <div class="value" id="daily-pnl">—</div>
+        <div class="sub" id="daily-pnl-sub">—</div>
+    </div>
+    <div class="card">
+        <h2>Drawdown</h2>
+        <div class="value" id="drawdown">—</div>
+        <div class="sub">From peak equity</div>
+    </div>
+    <div class="card">
+        <h2>Open Positions</h2>
+        <div class="value" id="open-positions">—</div>
+        <div class="sub" id="positions-sub">—</div>
+    </div>
+    <div class="card">
+        <h2>Active Capital</h2>
+        <div class="value" id="active-capital">—</div>
+        <div class="sub" id="capital-sub">—</div>
+    </div>
+    <div class="card">
+        <h2>Risk Multiplier</h2>
+        <div class="value" id="risk-multiplier">—</div>
+        <div class="sub">Based on volatility regime</div>
+    </div>
+</div>
+
+<div style="padding: 0 16px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+    <!-- Open Positions Table -->
+    <div class="card">
+        <h2>Open Positions</h2>
+        <table id="positions-table">
+            <thead><tr><th>Symbol</th><th>Side</th><th>Qty</th><th>Entry</th><th>Current</th><th>PnL</th></tr></thead>
+            <tbody><tr><td colspan="6" style="color:#666;text-align:center">Loading...</td></tr></tbody>
+        </table>
+    </div>
+
+    <!-- Recent Signals Table -->
+    <div class="card">
+        <h2>Recent Signals</h2>
+        <table id="signals-table">
+            <thead><tr><th>Symbol</th><th>Strategy</th><th>Dir</th><th>EV</th><th>Score</th></tr></thead>
+            <tbody><tr><td colspan="5" style="color:#666;text-align:center">Loading...</td></tr></tbody>
+        </table>
+    </div>
+</div>
+
+<div style="padding: 0 16px 16px;">
+    <!-- Recent Trades Table -->
+    <div class="card">
+        <h2>Recent Trades</h2>
+        <table id="trades-table">
+            <thead><tr><th>Symbol</th><th>Direction</th><th>Entry</th><th>Exit</th><th>Net PnL</th><th>Strategy</th><th>Time</th></tr></thead>
+            <tbody><tr><td colspan="7" style="color:#666;text-align:center">Loading...</td></tr></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+async function fetchJSON(url) {
+    const res = await fetch(url);
+    return res.json();
+}
+
+function fmt(n, decimals=2) {
+    if (n === null || n === undefined) return '—';
+    return Number(n).toFixed(decimals);
+}
+
+function colorClass(val) {
+    return val > 0 ? 'positive' : (val < 0 ? 'negative' : 'neutral');
+}
+
+async function loadBankroll() {
+    try {
+        const data = await fetchJSON('/api/bankroll');
+        document.getElementById('equity').textContent = '$' + fmt(data.total_equity);
+        document.getElementById('equity-sub').textContent = 'Peak: $' + fmt(data.peak_equity);
+        document.getElementById('active-capital').textContent = '$' + fmt(data.active_capital);
+        document.getElementById('capital-sub').textContent = 'Available: $' + fmt(data.available_capital);
+    } catch(e) {}
+}
+
+async function loadRisk() {
+    try {
+        const data = await fetchJSON('/api/risk');
+        const pnl = data.daily_pnl;
+        const pnlEl = document.getElementById('daily-pnl');
+        pnlEl.textContent = (pnl >= 0 ? '+' : '') + '$' + fmt(pnl);
+        pnlEl.className = 'value ' + colorClass(pnl);
+        document.getElementById('daily-pnl-sub').textContent = fmt(data.daily_pnl_pct * 100, 2) + '% today';
+
+        const dd = data.current_drawdown * 100;
+        const ddEl = document.getElementById('drawdown');
+        ddEl.textContent = fmt(dd) + '%';
+        ddEl.className = 'value ' + (dd > 5 ? 'negative' : 'neutral');
+
+        document.getElementById('open-positions').textContent = data.open_positions;
+        document.getElementById('risk-multiplier').textContent = fmt(data.risk_multiplier, 2) + 'x';
+        document.getElementById('regime-text').textContent = 'Regime: ' + data.regime;
+
+        if (data.kill_switch_active) {
+            document.getElementById('status-dot').className = 'dot dot-red';
+            document.getElementById('status-text').textContent = '🛑 KILL SWITCH ACTIVE';
+        } else {
+            document.getElementById('status-dot').className = 'dot dot-green';
+            document.getElementById('status-text').textContent = 'Running';
+        }
+    } catch(e) {}
+}
+
+async function loadPositions() {
+    try {
+        const data = await fetchJSON('/api/positions');
+        const tbody = document.querySelector('#positions-table tbody');
+        if (!data.length) {
+            tbody.innerHTML = '<tr><td colspan="6" style="color:#666;text-align:center">No open positions</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.map(p => `
+            <tr>
+                <td>${p.symbol}</td>
+                <td><span class="badge badge-${p.side}">${p.side.toUpperCase()}</span></td>
+                <td>${fmt(p.quantity, 4)}</td>
+                <td>$${fmt(p.entry_price)}</td>
+                <td>$${fmt(p.current_price)}</td>
+                <td class="${colorClass(p.unrealised_pnl)}">${p.unrealised_pnl >= 0 ? '+' : ''}$${fmt(p.unrealised_pnl)}</td>
+            </tr>`).join('');
+        document.getElementById('positions-sub').textContent = data.length + ' positions';
+    } catch(e) {}
+}
+
+async function loadTrades() {
+    try {
+        const data = await fetchJSON('/api/trades');
+        const tbody = document.querySelector('#trades-table tbody');
+        if (!data.length) {
+            tbody.innerHTML = '<tr><td colspan="7" style="color:#666;text-align:center">No trades yet</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.slice(0, 10).map(t => `
+            <tr>
+                <td>${t.symbol}</td>
+                <td><span class="badge badge-${t.direction}">${t.direction.toUpperCase()}</span></td>
+                <td>$${fmt(t.entry_price)}</td>
+                <td>${t.exit_price ? '$' + fmt(t.exit_price) : '—'}</td>
+                <td class="${colorClass(t.net_pnl)}">${t.net_pnl >= 0 ? '+' : ''}$${fmt(t.net_pnl)}</td>
+                <td>${t.strategy}</td>
+                <td>${t.opened_at ? new Date(t.opened_at).toLocaleTimeString() : '—'}</td>
+            </tr>`).join('');
+    } catch(e) {}
+}
+
+async function loadSignals() {
+    try {
+        const data = await fetchJSON('/api/signals');
+        const tbody = document.querySelector('#signals-table tbody');
+        if (!data.length) {
+            tbody.innerHTML = '<tr><td colspan="5" style="color:#666;text-align:center">No signals yet</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.slice(0, 10).map(s => `
+            <tr>
+                <td>${s.symbol}</td>
+                <td>${s.strategy}</td>
+                <td><span class="badge badge-${s.direction}">${s.direction.toUpperCase()}</span></td>
+                <td>${fmt(s.expected_value * 100, 3)}%</td>
+                <td>${fmt(s.score, 2)}</td>
+            </tr>`).join('');
+    } catch(e) {}
+}
+
+async function activateKillSwitch() {
+    if (!confirm('⚠️ Are you sure you want to activate the KILL SWITCH?\nThis will halt all trading immediately.')) return;
+    try {
+        await fetch('/api/kill-switch', { method: 'POST' });
+        alert('Kill switch activated.');
+        loadAll();
+    } catch(e) { alert('Failed: ' + e); }
+}
+
+async function loadAll() {
+    await Promise.all([loadBankroll(), loadRisk(), loadPositions(), loadTrades(), loadSignals()]);
+    document.getElementById('last-update').textContent = 'Last update: ' + new Date().toLocaleTimeString();
+}
+
+// Initial load
+loadAll();
+// Auto-refresh every 5 seconds
+setInterval(loadAll, 5000);
+</script>
+</body>
+</html>

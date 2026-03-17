@@ -1,0 +1,21 @@
+{
+  "start_equity": 10000.0,
+  "end_equity": 10000.0,
+  "return_pct": 0.0,
+  "total_trades": 0,
+  "winning_trades": 0,
+  "losing_trades": 0,
+  "win_rate_pct": 0.0,
+  "total_pnl": 0,
+  "total_fees": 0,
+  "total_slippage": 0,
+  "net_pnl": 0,
+  "max_drawdown_pct": 0.0,
+  "sharpe_ratio": 0.0,
+  "expectancy": 0.0,
+  "avg_trade_duration_s": 0,
+  "best_trade": 0.0,
+  "worst_trade": 0.0,
+  "start_time": "2026-03-17T15:27:53.586488",
+  "end_time": "2026-03-17T15:28:12.586624"
+}
