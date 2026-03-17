@@ -4,7 +4,7 @@ app/models/trade.py — Trade and order models.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
@@ -48,8 +48,8 @@ class Order(BaseModel):
     average_fill_price: Optional[float] = None
     fee_paid: float = 0.0
     signal_id: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     filled_at: Optional[datetime] = None
     cancelled_at: Optional[datetime] = None
     notes: str = ""
@@ -81,7 +81,7 @@ class Trade(BaseModel):
     # Metadata
     strategy: str = ""
     signal_id: Optional[str] = None
-    opened_at: datetime = Field(default_factory=datetime.utcnow)
+    opened_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     closed_at: Optional[datetime] = None
     hold_duration_seconds: float = 0.0
 

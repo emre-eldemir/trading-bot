@@ -10,7 +10,7 @@ Also tracks daily PnL, drawdown, and provides capital availability checks.
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from typing import Optional
 
 from app.config import TradingConfig, get_settings
@@ -36,7 +36,7 @@ class BankrollManager:
         self._peak_equity: float = self._settings.starting_bankroll
         self._committed_capital: float = 0.0  # Capital in open positions
         self._daily_start_equity: float = self._settings.starting_bankroll
-        self._daily_reset_date: date = datetime.utcnow().date()
+        self._daily_reset_date: date = datetime.now(timezone.utc).date()
         self._pnl_history: list[float] = []
 
     # ------------------------------------------------------------------ #
@@ -56,6 +56,10 @@ class BankrollManager:
     def cold_reserve(self) -> float:
         """Capital permanently held back — NOT used for trading."""
         return self._total_equity * (1.0 - self._settings.active_capital_ratio)
+
+    @property
+    def peak_equity(self) -> float:
+        return self._peak_equity
 
     @property
     def available_capital(self) -> float:
@@ -129,7 +133,7 @@ class BankrollManager:
 
     def _maybe_reset_daily(self) -> None:
         """Reset daily PnL tracking at UTC midnight."""
-        today = datetime.utcnow().date()
+        today = datetime.now(timezone.utc).date()
         if today != self._daily_reset_date:
             self._daily_start_equity = self._total_equity
             self._daily_reset_date = today

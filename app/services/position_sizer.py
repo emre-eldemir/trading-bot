@@ -119,6 +119,8 @@ class PositionSizer:
         # (The caller can override by adjusting the fraction before calling)
 
         # 5. Clamp to configured min/max position limits
+        if corr_adjusted <= 0:
+            return 0.0
         final_size = max(
             self._settings.min_position_fraction,
             min(self._settings.max_position_fraction, corr_adjusted),

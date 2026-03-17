@@ -11,7 +11,7 @@ Logic:
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from app.config import TradingConfig, get_settings
@@ -135,6 +135,6 @@ class OrderBookImbalanceStrategy(BaseStrategy):
             win_probability=win_probability,
             confidence=win_probability * 0.85,  # Slightly discounted
             num_observations=len(self._imbalance_history.get(metrics.symbol, [1])),
-            expires_at=datetime.utcnow() + timedelta(seconds=30),  # Imbalance signals expire fast
+            expires_at=datetime.now(timezone.utc) + timedelta(seconds=30),  # Imbalance signals expire fast
             notes=f"imbalance={imbalance:.3f}",
         )

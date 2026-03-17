@@ -12,7 +12,7 @@ The kill switch can be triggered by:
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from app.utils.logging_config import Events, log_event
@@ -59,7 +59,7 @@ class KillSwitch:
 
         self._active = True
         self._activation_reason = reason
-        self._activated_at = datetime.utcnow()
+        self._activated_at = datetime.now(timezone.utc)
 
         log_event(
             logger,
@@ -93,7 +93,7 @@ class KillSwitch:
 
         logger.warning(
             "Kill switch RESET by operator | was active for %.0f seconds",
-            (datetime.utcnow() - self._activated_at).total_seconds()
+            (datetime.now(timezone.utc) - self._activated_at).total_seconds()
             if self._activated_at else 0,
         )
         self._active = False

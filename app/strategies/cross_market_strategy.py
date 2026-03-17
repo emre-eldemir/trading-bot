@@ -11,7 +11,7 @@ Logic:
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from app.config import TradingConfig, get_settings
@@ -154,6 +154,6 @@ class CrossMarketStrategy(BaseStrategy):
             win_probability=win_prob,
             confidence=win_prob * 0.90,
             num_observations=5,  # Cross-market signals have inherent confidence
-            expires_at=datetime.utcnow() + timedelta(seconds=15),  # Arb closes very fast
+            expires_at=datetime.now(timezone.utc) + timedelta(seconds=15),  # Arb closes very fast
             notes=f"arb: {primary.exchange} vs {secondary.exchange}",
         )

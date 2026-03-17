@@ -14,7 +14,7 @@ Only signals with EV > min_ev are returned as actionable.
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+import math
 from typing import Optional
 
 from app.config import TradingConfig, get_settings
@@ -22,8 +22,6 @@ from app.models.market import MarketMetrics
 from app.models.signal import Signal
 from app.utils.math_helpers import (
     bayesian_edge_confidence,
-    ev_after_fees,
-    ev_after_slippage,
     expected_value,
     signal_decay_factor,
 )
@@ -124,7 +122,6 @@ class EVEngine:
 
         # 9. Execution delay cost: opportunity may move against us in delay window
         # Approximation: delay_cost = volatility * sqrt(delay) * position_size * 0.5
-        import math
         delay_cost = (
             metrics.volatility
             * math.sqrt(self._settings.execution_delay / (365 * 24 * 3600))

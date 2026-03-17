@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from app.config import TradingConfig, get_settings
@@ -86,9 +86,9 @@ class OrderManager:
 
         Returns the final order state.
         """
-        start = datetime.utcnow()
+        start = datetime.now(timezone.utc)
         while True:
-            elapsed = (datetime.utcnow() - start).total_seconds()
+            elapsed = (datetime.now(timezone.utc) - start).total_seconds()
             if elapsed > self._settings.order_timeout:
                 # Cancel timed-out order
                 cancelled = await self.cancel(order)

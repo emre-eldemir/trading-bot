@@ -4,7 +4,7 @@ tests/test_backtest.py — Unit tests for the backtesting engine.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -37,7 +37,7 @@ def build_snapshots(n: int = 100, base_price: float = 65000.0) -> list[MarketMet
             estimated_slippage_sell=0.0003,
             volume_24h=5000.0,
             volatility=0.30,
-            timestamp=datetime.utcnow() - timedelta(seconds=n - i),
+            timestamp=datetime.now(timezone.utc) - timedelta(seconds=n - i),
         ))
     return snapshots
 

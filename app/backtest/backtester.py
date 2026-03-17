@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from app.config import TradingConfig, get_settings
@@ -241,8 +241,8 @@ class Backtester:
             strategy=signal.strategy,
             signal_id=signal.id,
             opened_at=position["opened_at"],
-            closed_at=datetime.utcnow(),
+            closed_at=datetime.now(timezone.utc),
             hold_duration_seconds=(
-                datetime.utcnow() - position["opened_at"]
+                datetime.now(timezone.utc) - position["opened_at"]
             ).total_seconds(),
         )
