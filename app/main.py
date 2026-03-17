@@ -16,7 +16,6 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
-import sys
 from pathlib import Path
 
 from app.config import get_settings
@@ -91,7 +90,7 @@ async def run_paper_trading(settings) -> None:
     # Inject references into API layer
     set_runtime_refs(execution, risk_manager, bankroll, kill_switch, scanner)
 
-    log_event(logger, Events.TRADE_OPENED, level="INFO", mode="paper_trading_started")
+    logger.info("Trading bot starting — paper trading mode")
     logger.info("="*60)
     logger.info("  TRADING BOT STARTING — PAPER TRADING MODE")
     logger.info("  Bankroll: $%.2f", settings.starting_bankroll)
@@ -99,18 +98,13 @@ async def run_paper_trading(settings) -> None:
     logger.info("  Strategies: %d active", len(strategies))
     logger.info("="*60)
 
-    try:
-        await paper_trader.run()
-    except KeyboardInterrupt:
-        log_event(logger, Events.SHUTDOWN_TRIGGERED, reason="KeyboardInterrupt")
-        scanner.stop()
-        logger.info("Graceful shutdown complete.")
+    await paper_trader.run()
 
 
 def run_backtest(settings) -> None:
     """Run historical backtest."""
     import json
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
     from app.models.market import MarketMetrics
     from app.strategies.mispricing_strategy import MispricingStrategy
     from app.strategies.orderbook_imbalance_strategy import OrderBookImbalanceStrategy
@@ -143,7 +137,7 @@ def run_backtest(settings) -> None:
                 estimated_slippage_sell=0.0003,
                 volume_24h=entry.get("volume", 1000),
                 volatility=0.30,
-                timestamp=datetime.utcnow() - timedelta(seconds=len(raw_data) - i),
+                timestamp=datetime.now(timezone.utc) - timedelta(seconds=len(raw_data) - i),
             )
             snapshots.append(snapshot)
     else:
@@ -167,7 +161,7 @@ def run_backtest(settings) -> None:
                 estimated_slippage_sell=0.0003,
                 volume_24h=random.uniform(500, 5000),
                 volatility=0.30,
-                timestamp=datetime.utcnow() - timedelta(seconds=200 - i),
+                timestamp=datetime.now(timezone.utc) - timedelta(seconds=200 - i),
             ))
 
     backtester = Backtester(
@@ -225,7 +219,11 @@ def main() -> None:
         run_api_server(settings)
     else:
         # Default: paper trading
-        asyncio.run(run_paper_trading(settings))
+        try:
+            asyncio.run(run_paper_trading(settings))
+        except KeyboardInterrupt:
+            log_event(logger, Events.SHUTDOWN_TRIGGERED, reason="KeyboardInterrupt")
+            logger.info("Graceful shutdown complete.")
 
 
 if __name__ == "__main__":

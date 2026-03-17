@@ -11,14 +11,14 @@ Logic:
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta
+from collections import deque
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from app.config import TradingConfig, get_settings
 from app.models.market import MarketMetrics
 from app.models.signal import Signal, SignalDirection, SignalType
 from app.strategies.base_strategy import BaseStrategy
-from app.utils.math_helpers import implied_probability
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class MispricingStrategy(BaseStrategy):
 
     def __init__(self, settings: Optional[TradingConfig] = None) -> None:
         super().__init__(name="mispricing", settings=settings)
-        self._price_vwap_window: list[float] = []
+        self._price_vwap_window: deque[float] = deque(maxlen=20)
         self._window_size: int = 20
 
     def name_str(self) -> str:
@@ -63,8 +63,6 @@ class MispricingStrategy(BaseStrategy):
 
         # Update rolling VWAP tracker
         self._price_vwap_window.append(metrics.mid_price)
-        if len(self._price_vwap_window) > self._window_size:
-            self._price_vwap_window.pop(0)
 
         fair_value = self._estimate_fair_value(metrics)
         if fair_value <= 0:
@@ -158,5 +156,5 @@ class MispricingStrategy(BaseStrategy):
             win_probability=win_probability,
             confidence=min(0.90, win_probability + 0.10),
             num_observations=len(self._price_vwap_window),
-            expires_at=datetime.utcnow() + timedelta(seconds=self._settings.signal_decay_half_life * 2),
+            expires_at=datetime.now(timezone.utc) + timedelta(seconds=self._settings.signal_decay_half_life * 2),
         )

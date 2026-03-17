@@ -8,7 +8,7 @@ The repository pattern is used for all data access — no raw SQL in business lo
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Generator
 
 from sqlalchemy import (
@@ -125,7 +125,7 @@ class PnLRecord(Base):
     equity = Column(Float)
     daily_pnl = Column(Float)
     drawdown = Column(Float)
-    recorded_at = Column(DateTime, default=datetime.utcnow)
+    recorded_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 def init_db() -> None:

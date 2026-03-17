@@ -6,7 +6,7 @@ Pydantic models for order book snapshots, tickers, and market metrics.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -22,7 +22,7 @@ class OrderBook(BaseModel):
     """L2 order book snapshot."""
     symbol: str
     exchange: str = "mock"
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     bids: list[OrderBookLevel] = Field(default_factory=list)
     asks: list[OrderBookLevel] = Field(default_factory=list)
 
@@ -85,7 +85,7 @@ class Ticker(BaseModel):
     """Current ticker data for a symbol."""
     symbol: str
     exchange: str = "mock"
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     bid: float = 0.0
     ask: float = 0.0
     last: float = 0.0
@@ -102,7 +102,7 @@ class MarketMetrics(BaseModel):
     """
     symbol: str
     exchange: str = "mock"
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Price
     mid_price: float = 0.0

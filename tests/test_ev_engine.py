@@ -5,7 +5,7 @@ tests/test_ev_engine.py — Unit tests for the EV Engine.
 from __future__ import annotations
 
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -34,7 +34,7 @@ class TestEVEngine:
         """Expired signals should always be rejected."""
         engine = EVEngine(test_settings)
         expired_signal = sample_signal.model_copy(update={
-            "expires_at": datetime.utcnow() - timedelta(seconds=10)
+            "expires_at": datetime.now(timezone.utc) - timedelta(seconds=10)
         })
         result = engine.evaluate(expired_signal, sample_metrics, position_size=100.0)
         assert result is None
@@ -54,7 +54,7 @@ class TestEVEngine:
 
         # Aged signal
         aged_signal = sample_signal.model_copy(update={
-            "created_at": datetime.utcnow() - timedelta(seconds=120)
+            "created_at": datetime.now(timezone.utc) - timedelta(seconds=120)
         })
         aged_result = engine.evaluate(aged_signal, sample_metrics, position_size=100.0)
 

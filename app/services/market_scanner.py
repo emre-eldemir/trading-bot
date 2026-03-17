@@ -15,9 +15,9 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import time
+import math
 from collections import deque
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Callable, Optional
 
 from app.config import TradingConfig, get_settings
@@ -120,7 +120,7 @@ class MarketScanner:
         )
         slippage_sell = dynamic_slippage_from_orderbook(
             ref_qty,
-            order_book.as_bid_tuples(),
+            order_book.as_ask_tuples(),
             side="sell",
             bids=order_book.as_bid_tuples(),
         )
@@ -131,7 +131,7 @@ class MarketScanner:
         metrics = MarketMetrics(
             symbol=symbol,
             exchange=order_book.exchange,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             mid_price=order_book.mid_price or ticker.last,
             best_bid=order_book.best_bid or ticker.bid,
             best_ask=order_book.best_ask or ticker.ask,
@@ -156,7 +156,6 @@ class MarketScanner:
         Uses log returns; annualised assuming 5-second intervals.
         Returns 0.0 if insufficient data.
         """
-        import math
         prices = list(self._price_history[symbol])
         if len(prices) < 5:
             return 0.0

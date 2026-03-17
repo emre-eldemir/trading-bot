@@ -13,7 +13,7 @@ import json
 import logging
 import random
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -86,7 +86,7 @@ class MockAdapter(BaseAdapter):
         return OrderBook(
             symbol=symbol,
             exchange="mock",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             bids=bids,
             asks=asks,
         )
@@ -102,7 +102,7 @@ class MockAdapter(BaseAdapter):
         return Ticker(
             symbol=symbol,
             exchange="mock",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             bid=round(price - spread / 2, 2),
             ask=round(price + spread / 2, 2),
             last=round(price, 2),
@@ -125,7 +125,7 @@ class MockAdapter(BaseAdapter):
         current_price = self._get_current_price(order.symbol)
         updated = order.model_copy(update={
             "exchange_order_id": exchange_id,
-            "updated_at": datetime.utcnow(),
+            "updated_at": datetime.now(timezone.utc),
         })
 
         if order.order_type == OrderType.MARKET:
@@ -144,7 +144,7 @@ class MockAdapter(BaseAdapter):
         self._pending_orders.pop(order.exchange_order_id, None)
         return order.model_copy(update={
             "status": OrderStatus.CANCELLED,
-            "cancelled_at": datetime.utcnow(),
+            "cancelled_at": datetime.now(timezone.utc),
         })
 
     async def get_order_status(self, order: Order) -> Order:
@@ -198,8 +198,8 @@ class MockAdapter(BaseAdapter):
             "filled_quantity": order.quantity,
             "average_fill_price": round(fill_price, 6),
             "fee_paid": round(fee, 6),
-            "filled_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow(),
+            "filled_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc),
         })
 
     async def _try_fill_limit_order(self, order: Order, current_price: float) -> Order:
@@ -221,8 +221,8 @@ class MockAdapter(BaseAdapter):
                 "filled_quantity": order.quantity,
                 "average_fill_price": order.price,
                 "fee_paid": round(fee, 6),
-                "filled_at": datetime.utcnow(),
-                "updated_at": datetime.utcnow(),
+                "filled_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(timezone.utc),
             })
 
         return order.model_copy(update={"status": OrderStatus.OPEN})

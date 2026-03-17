@@ -4,7 +4,7 @@ app/models/position.py — Open position model.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
@@ -33,8 +33,8 @@ class Position(BaseModel):
     entry_order_id: str = ""
     signal_id: Optional[str] = None
     strategy: str = ""
-    opened_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    opened_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Risk parameters
     stop_price: Optional[float] = None

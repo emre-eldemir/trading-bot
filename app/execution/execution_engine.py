@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from app.config import TradingConfig, get_settings
@@ -311,8 +311,8 @@ class ExecutionEngine:
             strategy=position.strategy,
             signal_id=position.signal_id,
             opened_at=position.opened_at,
-            closed_at=datetime.utcnow(),
-            hold_duration_seconds=(datetime.utcnow() - position.opened_at).total_seconds(),
+            closed_at=datetime.now(timezone.utc),
+            hold_duration_seconds=(datetime.now(timezone.utc) - position.opened_at).total_seconds(),
         )
 
         # Update bankroll
@@ -367,5 +367,5 @@ class ExecutionEngine:
             if pos.symbol == symbol:
                 self._open_positions[pos.id] = pos.model_copy(update={
                     "current_price": current_price,
-                    "updated_at": datetime.utcnow(),
+                    "updated_at": datetime.now(timezone.utc),
                 })

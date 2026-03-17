@@ -15,7 +15,7 @@ The risk manager is the last gate before order submission.
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from app.config import TradingConfig, get_settings
@@ -159,7 +159,7 @@ class RiskManager:
         return RiskState(
             daily_pnl=self._bankroll.daily_pnl,
             daily_pnl_pct=self._bankroll.daily_pnl_pct,
-            peak_equity=self._bankroll._peak_equity,
+            peak_equity=self._bankroll.peak_equity,
             current_equity=self._bankroll.total_equity,
             current_drawdown=self._bankroll.current_drawdown,
             open_position_count=len(open_positions),
@@ -170,7 +170,7 @@ class RiskManager:
             regime=self._regime.current_regime,
             risk_multiplier=self._regime.risk_multiplier,
             kill_switch_active=self._kill_switch.is_active,
-            last_updated=datetime.utcnow(),
+            last_updated=datetime.now(timezone.utc),
         )
 
     def get_risk_events(self, limit: int = 50) -> list[RiskEvent]:

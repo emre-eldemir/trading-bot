@@ -8,7 +8,7 @@ Business logic NEVER accesses the DB directly.
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy.orm import Session
@@ -180,7 +180,7 @@ class PnLRepository:
         self._db = db
 
     def record_daily(self, equity: float, daily_pnl: float, drawdown: float) -> None:
-        today = datetime.utcnow().date().isoformat()
+        today = datetime.now(timezone.utc).date().isoformat()
         record = PnLRecord(
             date=today,
             equity=equity,

@@ -13,7 +13,7 @@ from __future__ import annotations
 import csv
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -36,7 +36,7 @@ def generate_report(result: BacktestResult, report_name: str = "backtest") -> Pa
     Returns the reports directory path.
     """
     _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     prefix = _REPORTS_DIR / f"{report_name}_{timestamp}"
 
     _write_summary(result, Path(f"{prefix}_summary.json"))

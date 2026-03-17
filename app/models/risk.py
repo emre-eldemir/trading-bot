@@ -4,7 +4,7 @@ app/models/risk.py — Risk event and state models.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
@@ -38,7 +38,7 @@ class RiskEvent(BaseModel):
     symbol: Optional[str] = None
     value: Optional[float] = None
     threshold: Optional[float] = None
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class RiskState(BaseModel):
@@ -57,4 +57,4 @@ class RiskState(BaseModel):
     regime: VolatilityRegime = VolatilityRegime.NORMAL
     risk_multiplier: float = 1.0
     kill_switch_active: bool = False
-    last_updated: datetime = Field(default_factory=datetime.utcnow)
+    last_updated: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

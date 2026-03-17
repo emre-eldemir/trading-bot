@@ -6,7 +6,7 @@ A Signal represents a detected opportunity before execution.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
@@ -57,7 +57,7 @@ class Signal(BaseModel):
     num_observations: int = 1  # Sample size for Bayesian estimation
 
     # Timing
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     expires_at: Optional[datetime] = None
 
     # Score (from opportunity scorer)
@@ -69,11 +69,11 @@ class Signal(BaseModel):
     @property
     def age_seconds(self) -> float:
         """Seconds since signal was created."""
-        return (datetime.utcnow() - self.created_at).total_seconds()
+        return (datetime.now(timezone.utc) - self.created_at).total_seconds()
 
     @property
     def is_expired(self) -> bool:
         """True if the signal has exceeded its expiry time."""
         if self.expires_at is None:
             return False
-        return datetime.utcnow() > self.expires_at
+        return datetime.now(timezone.utc) > self.expires_at
