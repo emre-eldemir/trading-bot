@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  trading-bot:
+    build: .
+    container_name: trading-bot
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./config.yaml:/app/config.yaml:ro
+    environment:
+      - SIMULATION_MODE=true
+      - LIVE_TRADING=false
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+    command: python -m app.main
+
+  trading-bot-api:
+    build: .
+    container_name: trading-bot-api
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./config.yaml:/app/config.yaml:ro
+    environment:
+      - SIMULATION_MODE=true
+      - LIVE_TRADING=false
+    command: python -m app.main --api
+    profiles:
+      - api

@@ -1,0 +1,89 @@
+[
+  {
+    "symbol": "BTC/USDT",
+    "exchange": "mock",
+    "timestamp": "2024-01-15T10:00:00Z",
+    "bids": [
+      {"price": 64987.50, "size": 0.245},
+      {"price": 64985.00, "size": 0.512},
+      {"price": 64982.00, "size": 1.034},
+      {"price": 64979.00, "size": 0.876},
+      {"price": 64975.00, "size": 2.140},
+      {"price": 64970.00, "size": 1.560},
+      {"price": 64965.00, "size": 3.200},
+      {"price": 64960.00, "size": 2.780},
+      {"price": 64955.00, "size": 4.100},
+      {"price": 64950.00, "size": 5.230}
+    ],
+    "asks": [
+      {"price": 65012.50, "size": 0.189},
+      {"price": 65015.00, "size": 0.432},
+      {"price": 65018.00, "size": 0.765},
+      {"price": 65021.00, "size": 1.230},
+      {"price": 65025.00, "size": 1.890},
+      {"price": 65030.00, "size": 2.340},
+      {"price": 65035.00, "size": 3.100},
+      {"price": 65040.00, "size": 2.560},
+      {"price": 65045.00, "size": 4.200},
+      {"price": 65050.00, "size": 6.780}
+    ]
+  },
+  {
+    "symbol": "ETH/USDT",
+    "exchange": "mock",
+    "timestamp": "2024-01-15T10:00:00Z",
+    "bids": [
+      {"price": 3498.20, "size": 2.54},
+      {"price": 3497.50, "size": 5.12},
+      {"price": 3496.80, "size": 8.34},
+      {"price": 3496.00, "size": 12.67},
+      {"price": 3495.00, "size": 18.90},
+      {"price": 3494.00, "size": 24.50},
+      {"price": 3493.00, "size": 30.10},
+      {"price": 3492.00, "size": 35.40},
+      {"price": 3491.00, "size": 42.30},
+      {"price": 3490.00, "size": 55.60}
+    ],
+    "asks": [
+      {"price": 3501.80, "size": 1.98},
+      {"price": 3502.50, "size": 4.23},
+      {"price": 3503.20, "size": 6.78},
+      {"price": 3504.00, "size": 10.45},
+      {"price": 3505.00, "size": 15.30},
+      {"price": 3506.00, "size": 22.10},
+      {"price": 3507.00, "size": 28.40},
+      {"price": 3508.00, "size": 34.90},
+      {"price": 3509.00, "size": 40.20},
+      {"price": 3510.00, "size": 52.80}
+    ]
+  },
+  {
+    "symbol": "SOL/USDT",
+    "exchange": "mock",
+    "timestamp": "2024-01-15T10:00:00Z",
+    "bids": [
+      {"price": 179.85, "size": 45.2},
+      {"price": 179.70, "size": 87.6},
+      {"price": 179.55, "size": 134.5},
+      {"price": 179.40, "size": 198.3},
+      {"price": 179.20, "size": 245.7},
+      {"price": 179.00, "size": 312.4},
+      {"price": 178.80, "size": 389.6},
+      {"price": 178.60, "size": 445.2},
+      {"price": 178.40, "size": 521.8},
+      {"price": 178.20, "size": 634.1}
+    ],
+    "asks": [
+      {"price": 180.15, "size": 38.9},
+      {"price": 180.30, "size": 72.4},
+      {"price": 180.45, "size": 118.7},
+      {"price": 180.60, "size": 167.3},
+      {"price": 180.80, "size": 223.5},
+      {"price": 181.00, "size": 289.4},
+      {"price": 181.20, "size": 345.6},
+      {"price": 181.40, "size": 412.8},
+      {"price": 181.60, "size": 489.3},
+      {"price": 181.80, "size": 578.2}
+    ]
+  }
+]
